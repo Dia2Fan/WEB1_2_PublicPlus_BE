@@ -2,10 +2,7 @@ package backend.dev.notification.service;
 
 import backend.dev.notification.entity.FCMToken;
 import backend.dev.notification.entity.Topic;
-import backend.dev.notification.exception.NotificationException;
 import backend.dev.notification.repository.TokenRepository;
-import backend.dev.setting.exception.ErrorCode;
-import backend.dev.setting.exception.PublicPlusCustomException;
 import backend.dev.user.entity.User;
 import backend.dev.user.repository.UserRepository;
 import com.google.firebase.FirebaseException;
@@ -15,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Slf4j

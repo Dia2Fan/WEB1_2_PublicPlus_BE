@@ -4,16 +4,15 @@ import backend.dev.meeting.dto.request.BoardFilterDTO;
 import backend.dev.meeting.dto.request.MeetingBoardRequestDTO;
 import backend.dev.meeting.dto.response.MeetingBoardResponseDTO;
 import backend.dev.meeting.entity.MeetingBoard;
-import backend.dev.meeting.exception.MeetingBoardNotFoundException;
-import backend.dev.meeting.exception.UnauthorizedAccessException;
 import backend.dev.meeting.repository.MeetingBoardRepository;
+import backend.dev.setting.exception.ErrorCode;
+import backend.dev.setting.exception.PublicPlusCustomException;
 import backend.dev.user.entity.Role;
 import backend.dev.user.entity.User;
 import backend.dev.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,16 +33,16 @@ public class MeetingBoardService {
 
         // 인증되지 않은 사용자 체크
         if (requesterId == null || requesterId.isEmpty()) {
-            throw new AuthenticationCredentialsNotFoundException("로그인이 필요합니다.");
+            throw new PublicPlusCustomException(ErrorCode.LOGIN_REQUIRED);
         }
         System.out.println("Id : "+requesterId);
         // 사용자 정보 조회
         User host = userRepository.findById(requesterId)
-                .orElseThrow(() -> new AuthenticationCredentialsNotFoundException("인증되지 않은 사용자입니다."));
+                .orElseThrow(() -> new PublicPlusCustomException(ErrorCode.UNAUTHORIZED_USER));
 
         // ADMIN 또는 USER 권한 확인
         if (host.getRole() != Role.ADMIN && host.getRole() != Role.USER) {
-            throw new UnauthorizedAccessException("인증되지 않은 사용자입니다.");
+            throw new PublicPlusCustomException(ErrorCode.UNAUTHORIZED_USER);
         }
 
         MeetingBoard meetingBoard = new MeetingBoard(dto, host);
@@ -64,7 +63,7 @@ public class MeetingBoardService {
     // Read: 특정 모임 조회
     public MeetingBoardResponseDTO getMeetingBoardById(Long mbId) {
         MeetingBoard meetingBoard = meetingBoardRepository.findById(mbId)
-                .orElseThrow(() -> new MeetingBoardNotFoundException("ID가 " + mbId + "인 모임을 찾을 수 없습니다."));
+                .orElseThrow(() -> new PublicPlusCustomException(ErrorCode.BOARD_NOT_FOUND));
 
         // MeetingBoard -> MeetingBoardResponseDTO 변환
         return new MeetingBoardResponseDTO(meetingBoard);
@@ -73,11 +72,11 @@ public class MeetingBoardService {
     // Update: 모임 수정
     public MeetingBoardResponseDTO updateMeetingBoard(Long mbId, MeetingBoardRequestDTO dto, String requesterId) {
         MeetingBoard meetingBoard = meetingBoardRepository.findById(mbId)
-                .orElseThrow(() -> new MeetingBoardNotFoundException("ID가 " + mbId + "인 모임을 찾을 수 없습니다."));
+                .orElseThrow(() -> new PublicPlusCustomException(ErrorCode.BOARD_NOT_FOUND));
 //        !isAdmin(requesterId) &&
         requesterId = SecurityContextHolder.getContext().getAuthentication().getName();
         if ( !isHost(requesterId, meetingBoard.getMbHost().getUserId())) {
-            throw new UnauthorizedAccessException("모임을 수정할 권한이 없습니다.");
+            throw new PublicPlusCustomException(ErrorCode.BOARD_NOT_DELETE);
         }
 
         meetingBoard.setSportType(dto.getSportType());
@@ -95,11 +94,11 @@ public class MeetingBoardService {
     // Delete: 모임 삭제
     public void deleteMeetingBoard(Long mbId, String requesterId) {
         MeetingBoard meetingBoard = meetingBoardRepository.findById(mbId)
-                .orElseThrow(() -> new MeetingBoardNotFoundException("ID가 " + mbId + "인 모임을 찾을 수 없습니다."));
+                .orElseThrow(() -> new PublicPlusCustomException(ErrorCode.BOARD_NOT_FOUND));
 
         // ADMIN 또는 HOST 권한 확인
         if (!isAdmin(requesterId) && !isHost(requesterId, meetingBoard.getMbHost().getUserId())) {
-            throw new UnauthorizedAccessException("모임을 삭제할 권한이 없습니다.");
+            throw new PublicPlusCustomException(ErrorCode.BOARD_NOT_DELETE);
         }
 
         meetingBoardRepository.deleteById(mbId);
@@ -108,7 +107,7 @@ public class MeetingBoardService {
     // 권한 확인 메서드
     private boolean isAdmin(String userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UnauthorizedAccessException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new PublicPlusCustomException(ErrorCode.NOT_FOUND_USER));
         return user.getRole() == Role.ADMIN;
     }
 

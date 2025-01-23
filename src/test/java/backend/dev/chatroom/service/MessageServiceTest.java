@@ -2,16 +2,15 @@ package backend.dev.chatroom.service;
 
 import backend.dev.chatroom.dto.request.MessageRequestDTO;
 import backend.dev.chatroom.dto.response.MessageResponseDTO;
-import backend.dev.chatroom.entity.ChatRoom;
 import backend.dev.chatroom.entity.ChatParticipant;
+import backend.dev.chatroom.entity.ChatRoom;
 import backend.dev.chatroom.entity.Message;
-import backend.dev.user.entity.User;
-import backend.dev.chatroom.exception.ChatRoomNotFoundException;
-import backend.dev.chatroom.exception.ParticipantNotFoundException;
-import backend.dev.chatroom.exception.UnauthorizedAccessException;
 import backend.dev.chatroom.repository.ChatParticipantRepository;
 import backend.dev.chatroom.repository.ChatRoomRepository;
 import backend.dev.chatroom.repository.MessageRepository;
+import backend.dev.setting.exception.ErrorCode;
+import backend.dev.setting.exception.PublicPlusCustomException;
+import backend.dev.user.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -142,8 +141,8 @@ class MessageServiceTest {
 
         // Act & Assert
         assertThatThrownBy(() -> messageService.deleteMessage(chatRoom.getChatRoomId(), message.getMessageId(), unauthorizedUserId))
-                .isInstanceOf(UnauthorizedAccessException.class)
-                .hasMessage("메시지 작성자 또는 방장만 메시지를 삭제할 수 있습니다.");
+                .isInstanceOf(PublicPlusCustomException.class)
+                .hasMessage(ErrorCode.CHAT_NOT_DELETE.getMessage());
     }
 
 

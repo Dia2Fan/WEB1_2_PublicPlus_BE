@@ -3,7 +3,6 @@ package backend.dev.notification.service;
 
 import backend.dev.notification.dto.NotificationDTO;
 import backend.dev.notification.entity.Notification;
-import backend.dev.notification.exception.NotificationException;
 import backend.dev.notification.repository.NotificationRepository;
 import backend.dev.setting.exception.ErrorCode;
 import backend.dev.setting.exception.PublicPlusCustomException;
@@ -11,7 +10,6 @@ import backend.dev.user.entity.User;
 import backend.dev.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -53,7 +51,7 @@ public class NotificationService {
 
 
     public NotificationDTO getNotificationById(Long id) {
-        Notification notification = notificationRepository.findById(id).orElseThrow(NotificationException.NOTIFICATION_NOT_FOUND::getNotificationException);
+        Notification notification = notificationRepository.findById(id).orElseThrow(()->new PublicPlusCustomException(ErrorCode.NOTIFICATION_NOT_FOUND));
 
         notification.changeRead();
 

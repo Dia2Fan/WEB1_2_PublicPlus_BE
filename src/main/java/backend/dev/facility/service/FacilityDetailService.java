@@ -4,15 +4,12 @@ import backend.dev.facility.dto.facility.FacilityResponseDTO;
 import backend.dev.facility.dto.facilitydetails.FacilityDetailsResponseDTO;
 import backend.dev.facility.dto.facilitydetails.FacilityDetailsUpdateDTO;
 import backend.dev.facility.entity.FacilityDetails;
-import backend.dev.facility.exception.FacilityException;
 import backend.dev.facility.repository.FacilityDetailsRepository;
 import backend.dev.likes.repository.LikeRepository;
-import backend.dev.likes.service.LikeService;
 import backend.dev.setting.exception.ErrorCode;
 import backend.dev.setting.exception.PublicPlusCustomException;
 import backend.dev.user.entity.User;
 import backend.dev.user.repository.UserRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -88,7 +85,7 @@ public class FacilityDetailService {
     }
     public FacilityDetailsResponseDTO getFacilityDetails(String id) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        FacilityDetails facilityDetails = facilityDetailsRepository.findById(id).orElseThrow(FacilityException.FACILITY_NOT_FOUND::getFacilityTaskException);
+        FacilityDetails facilityDetails = facilityDetailsRepository.findById(id).orElseThrow(() -> new PublicPlusCustomException(ErrorCode.FACILITY_NOT_FOUND));
         log.info("userId : {}", userId);
         if (!Objects.equals(userId, "anonymousUser")){
             viewIncrease(id,userId);
@@ -103,7 +100,7 @@ public class FacilityDetailService {
         }
 
         
-        return FacilityDetailsResponseDTO.fromEntity(facilityDetailsRepository.findById(id).orElseThrow(FacilityException.FACILITY_NOT_FOUND::getFacilityTaskException));
+        return FacilityDetailsResponseDTO.fromEntity(facilityDetailsRepository.findById(id).orElseThrow(() -> new PublicPlusCustomException(ErrorCode.FACILITY_NOT_FOUND)));
     }
 
     public boolean deleteFacilityDetail(String facilityId) {

@@ -2,7 +2,6 @@ package backend.dev.meeting.dto.request;
 
 import backend.dev.meeting.entity.SportType;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.Data;
@@ -48,4 +47,5 @@ public class MeetingBoardRequestDTO {
     @NotBlank(message = "오픈 채팅방 링크는 필수 항목입니다.")
     @Pattern(regexp = "^https?:\\/\\/open\\.kakao\\.com\\/o\\/.+", message = "유효한 오픈 채팅방 링크를 입력하세요.")
     @Schema(description = "오픈채팅방 링크", example = "https://open.kakao.com/o/example")
-    private String openChatLink; // 오픈채팅방 링크
+    private String openChatLink;
+} // 오픈채팅방 링크

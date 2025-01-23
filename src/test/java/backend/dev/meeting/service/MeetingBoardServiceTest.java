@@ -4,8 +4,9 @@ import backend.dev.meeting.dto.request.MeetingBoardRequestDTO;
 import backend.dev.meeting.dto.response.MeetingBoardResponseDTO;
 import backend.dev.meeting.entity.MeetingBoard;
 import backend.dev.meeting.entity.SportType;
-import backend.dev.meeting.exception.UnauthorizedAccessException;
 import backend.dev.meeting.repository.MeetingBoardRepository;
+import backend.dev.setting.exception.ErrorCode;
+import backend.dev.setting.exception.PublicPlusCustomException;
 import backend.dev.user.entity.Role;
 import backend.dev.user.entity.User;
 import backend.dev.user.repository.UserRepository;
@@ -84,11 +85,11 @@ class MeetingBoardServiceTest {
 
         // Mock MeetingBoardRepository.save() to return null
         when(meetingBoardRepository.save(any(MeetingBoard.class))).thenAnswer(invocation -> {
-            throw new UnauthorizedAccessException("인증되지 않은 사용자입니다.");
+            throw new PublicPlusCustomException(ErrorCode.UNAUTHORIZED_USER);
         });
 
         // Act & Assert
-        UnauthorizedAccessException exception = assertThrows(UnauthorizedAccessException.class, () ->
+        PublicPlusCustomException exception = assertThrows(PublicPlusCustomException.class, () ->
                 meetingBoardService.createMeetingBoard(meetingBoardRequestDTO, "user123")
         );
 

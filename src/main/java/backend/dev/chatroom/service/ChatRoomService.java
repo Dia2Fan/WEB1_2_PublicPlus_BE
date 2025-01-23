@@ -2,11 +2,14 @@ package backend.dev.chatroom.service;
 
 import backend.dev.chatroom.dto.request.ChatRoomRequestDTO;
 import backend.dev.chatroom.dto.response.ChatRoomResponseDTO;
-import backend.dev.chatroom.entity.*;
-import backend.dev.chatroom.exception.ChatRoomNotFoundException;
-import backend.dev.chatroom.exception.UnauthorizedAccessException;
-import backend.dev.chatroom.repository.ChatRoomRepository;
+import backend.dev.chatroom.entity.ChatParticipant;
+import backend.dev.chatroom.entity.ChatParticipantRole;
+import backend.dev.chatroom.entity.ChatRoom;
+import backend.dev.chatroom.entity.ChatRoomType;
 import backend.dev.chatroom.repository.ChatParticipantRepository;
+import backend.dev.chatroom.repository.ChatRoomRepository;
+import backend.dev.setting.exception.ErrorCode;
+import backend.dev.setting.exception.PublicPlusCustomException;
 import backend.dev.user.entity.User;
 import backend.dev.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -107,11 +110,11 @@ public class ChatRoomService {
     public void leaveChatRoom(Long chatRoomId) {
         String userId = getCurrentUserId();
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> new ChatRoomNotFoundException("ID가 " + chatRoomId + "인 채팅방을 찾을 수 없습니다."));
+                .orElseThrow(() -> new PublicPlusCustomException(ErrorCode.CHATROOM_NOT_FOUND));
 
         // 현재 사용자 가져오기
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다: " + userId));
+                .orElseThrow(() -> new PublicPlusCustomException(ErrorCode.NOT_FOUND_USER));
 
         // 현재 사용자가 채팅방 참가자인지 확인
         ChatParticipant participant = chatParticipantRepository.findByChatRoomAndUserEmail(chatRoom, user.getEmail())
@@ -130,7 +133,7 @@ public class ChatRoomService {
     @Transactional(readOnly = true)
     public ChatRoomResponseDTO getChatRoomById(Long chatRoomId) {
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> new ChatRoomNotFoundException("ID가 " + chatRoomId + "인 채팅방을 찾을 수 없습니다."));
+                .orElseThrow(() -> new PublicPlusCustomException(ErrorCode.CHATROOM_NOT_FOUND));
         return ChatRoomResponseDTO.fromEntity(chatRoom);
     }
 

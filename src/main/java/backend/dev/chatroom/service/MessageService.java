@@ -2,16 +2,14 @@ package backend.dev.chatroom.service;
 
 import backend.dev.chatroom.dto.request.MessageRequestDTO;
 import backend.dev.chatroom.dto.response.MessageResponseDTO;
+import backend.dev.chatroom.entity.ChatParticipant;
 import backend.dev.chatroom.entity.ChatRoom;
 import backend.dev.chatroom.entity.Message;
-import backend.dev.chatroom.entity.ChatParticipant;
-import backend.dev.chatroom.exception.ChatRoomNotFoundException;
-import backend.dev.chatroom.exception.ParticipantNotFoundException;
-import backend.dev.chatroom.exception.InvalidChatRoomException;
-import backend.dev.chatroom.exception.UnauthorizedAccessException;
+import backend.dev.chatroom.repository.ChatParticipantRepository;
 import backend.dev.chatroom.repository.ChatRoomRepository;
 import backend.dev.chatroom.repository.MessageRepository;
-import backend.dev.chatroom.repository.ChatParticipantRepository;
+import backend.dev.setting.exception.ErrorCode;
+import backend.dev.setting.exception.PublicPlusCustomException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,10 +35,10 @@ public class MessageService {
     @Transactional
     public MessageResponseDTO sendMessage(MessageRequestDTO requestDTO) {
         ChatRoom chatRoom = chatRoomRepository.findById(requestDTO.getChatRoomId())
-                .orElseThrow(() -> new ChatRoomNotFoundException("채팅방을 찾을 수 없습니다."));
+                .orElseThrow(() -> new PublicPlusCustomException(ErrorCode.CHATROOM_NOT_FOUND));
 
         ChatParticipant participant = chatParticipantRepository.findById(requestDTO.getParticipantId())
-                .orElseThrow(() -> new ParticipantNotFoundException("참가자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new PublicPlusCustomException(ErrorCode.PARTICIPANT_NOT_FOUND));
 
         Message message = new Message();
         message.setChatRoom(chatRoom);
@@ -55,14 +53,14 @@ public class MessageService {
 
     private ChatRoom findChatRoom(Long chatRoomId) {
         return chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> new ChatRoomNotFoundException("채팅방을 찾을 수 없습니다."));
+                .orElseThrow(() -> new PublicPlusCustomException(ErrorCode.CHATROOM_NOT_FOUND));
     }
 
     private ChatParticipant findParticipant(Long participantId, ChatRoom chatRoom) {
         ChatParticipant participant = chatParticipantRepository.findById(participantId)
-                .orElseThrow(() -> new ParticipantNotFoundException("참가자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new PublicPlusCustomException(ErrorCode.PARTICIPANT_NOT_FOUND));
         if (!participant.getChatRoom().equals(chatRoom)) {
-            throw new InvalidChatRoomException("참가자가 해당 채팅방에 포함되어 있지 않습니다.");
+            throw new PublicPlusCustomException(ErrorCode.INVALID_CHATROOM);
         }
         return participant;
     }
@@ -94,12 +92,12 @@ public class MessageService {
 
     private Message findMessage(Long messageId) {
         return messageRepository.findById(messageId)
-                .orElseThrow(() -> new IllegalArgumentException("메시지를 찾을 수 없습니다."));
+                .orElseThrow(() -> new PublicPlusCustomException(ErrorCode.CHAT_NOT_FOUND));
     }
 
     private ChatParticipant findRequester(ChatRoom chatRoom, String requesterId) {
         return chatParticipantRepository.findByChatRoomAndUserEmail(chatRoom, requesterId)
-                .orElseThrow(() -> new ParticipantNotFoundException("요청자를 해당 채팅방에서 찾을 수 없습니다."));
+                .orElseThrow(() -> new PublicPlusCustomException(ErrorCode.PARTICIPANT_NOT_FOUND));
     }
 
     private void validateRequesterPermission(ChatParticipant requester, Message message) {
@@ -110,10 +108,10 @@ public class MessageService {
         if (requester.getUser() != null && message.getParticipant().getUser() != null) {
             if (!message.getParticipant().getUser().getUserId().equals(requester.getUser().getUserId())
                     && !requester.isHost()) {
-                throw new UnauthorizedAccessException("메시지 작성자 또는 방장만 메시지를 삭제할 수 있습니다.");
+                throw new PublicPlusCustomException(ErrorCode.CHAT_NOT_DELETE);
             }
         } else {
-            throw new UnauthorizedAccessException("사용자 정보가 누락되었습니다.");
+            throw new PublicPlusCustomException(ErrorCode.NOT_USER_INFORMATION);
         }
     }
 }

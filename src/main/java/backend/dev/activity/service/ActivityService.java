@@ -5,15 +5,12 @@ import backend.dev.activity.dto.ActivityResponseDTO;
 import backend.dev.activity.entity.Activity;
 import backend.dev.activity.entity.ActivityParticipants;
 import backend.dev.activity.entity.ParticipantsRole;
-import backend.dev.activity.exception.ActivityException;
-import backend.dev.activity.exception.ActivityTaskException;
 import backend.dev.activity.mapper.ActivityMapper;
 import backend.dev.activity.repository.ActivityParticipantsRepository;
 import backend.dev.activity.repository.ActivityRepository;
 import backend.dev.googlecalendar.service.EventService;
 import backend.dev.notification.dto.NotificationDTO;
 import backend.dev.notification.entity.NotificationTitleType;
-import backend.dev.notification.repository.NotificationRepository;
 import backend.dev.notification.repository.TopicRepository;
 import backend.dev.notification.service.NotificationService;
 import backend.dev.setting.exception.ErrorCode;
@@ -42,7 +39,7 @@ public class ActivityService {
     private final NotificationService notificationService;
 
     public ActivityResponseDTO readActivity(Long activityId){
-        return ActivityMapper.toActivityResponseDTO(activityRepository.findById(activityId).orElseThrow(ActivityException.ACTIVITY_NOT_FOUND::getException));
+        return ActivityMapper.toActivityResponseDTO(activityRepository.findById(activityId).orElseThrow(() -> new PublicPlusCustomException(ErrorCode.ACTIVITY_NOT_FOUND)));
     }
     public Page<ActivityResponseDTO> readAllActivities( ){
         return activityRepository.findAll(defaultPageable).map(ActivityMapper::toActivityResponseDTO);
@@ -79,10 +76,10 @@ public class ActivityService {
         return ActivityMapper.toActivityResponseDTO(activity);
     }
     public ActivityResponseDTO JoinActivity(Long activityId) {
-        Activity activity = activityRepository.findById(activityId).orElseThrow(ActivityException.ACTIVITY_NOT_FOUND::getException);
+        Activity activity = activityRepository.findById(activityId).orElseThrow(() -> new PublicPlusCustomException(ErrorCode.ACTIVITY_NOT_FOUND));
 
         if (activity.getMaxParticipants() == activity.getCurrentParticipants()){
-            throw ActivityException.ACTIVITY_FULL.getException();
+            throw new PublicPlusCustomException(ErrorCode.ACTIVITY_FULL);
         }
 
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -106,10 +103,10 @@ public class ActivityService {
     }
 
     public ActivityResponseDTO updateActivity(ActivityRequestDTO dto, Long activityId) {
-        Activity activity = activityRepository.findById(activityId).orElseThrow(ActivityException.ACTIVITY_NOT_FOUND::getException);
+        Activity activity = activityRepository.findById(activityId).orElseThrow(() -> new PublicPlusCustomException(ErrorCode.ACTIVITY_NOT_FOUND));
         // 토큰에서 사용자 정보를 불러와 사용자 조회
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findById(userId).orElseThrow(ActivityException.ACTIVITY_NOT_FOUND::getException);
+        User user = userRepository.findById(userId).orElseThrow(() -> new PublicPlusCustomException(ErrorCode.ACTIVITY_NOT_FOUND));
         //
         updateIsPresent(dto.title(),activity::changeTitle);
         updateIsPresent(dto.description(),activity::changeDescription);
@@ -127,26 +124,26 @@ public class ActivityService {
         }
     }
     public void deleteActivity(Long activityId){
-        Activity activity = activityRepository.findById(activityId).orElseThrow(ActivityException.ACTIVITY_NOT_FOUND::getException);
+        Activity activity = activityRepository.findById(activityId).orElseThrow(() -> new PublicPlusCustomException(ErrorCode.ACTIVITY_NOT_FOUND));
         // 유저 정보 받아오기
 //        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-//        User user = userRepository.findById("asd@example.com").orElseThrow(ActivityException.ACTIVITY_NOT_FOUND::getException);
+//        User user = userRepository.findById("asd@example.com").orElseThrow(() -> new PublicPlusCustomException(ErrorCode.ACTIVITY_NOT_FOUND));
 //        String googleCalenderId = user.getGoogleCalenderId();
         activityRepository.deleteById(activityId);
         if (activityRepository.existsById(activityId)) {
-            throw ActivityException.ACTIVITY_NOT_FOUND.getException();
+            throw new PublicPlusCustomException(ErrorCode.ACTIVITY_NOT_FOUND);
         }
 
     }
     public void activityQuit(Long activityId){
-        Activity activity = activityRepository.findById(activityId).orElseThrow(ActivityException.ACTIVITY_NOT_FOUND::getException);
+        Activity activity = activityRepository.findById(activityId).orElseThrow(() -> new PublicPlusCustomException(ErrorCode.ACTIVITY_NOT_FOUND));
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findById(userId).orElseThrow(() -> new PublicPlusCustomException(ErrorCode.NOT_FOUND_USER));
 
         if (activityParticipantsRepository.existsByActivityAndUserId(activity,userId)) {
             activityParticipantsRepository.deleteByUserId(userId);
         }else {
-            throw ActivityException.ACTIVITY_NOT_FOUND.getException();
+            throw new PublicPlusCustomException(ErrorCode.ACTIVITY_NOT_FOUND);
         }
 
         activity.changeCurrentParticipants(activity.getCurrentParticipants()-1);

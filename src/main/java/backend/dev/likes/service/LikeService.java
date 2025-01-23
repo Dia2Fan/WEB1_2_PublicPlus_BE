@@ -1,10 +1,8 @@
 package backend.dev.likes.service;
 
 import backend.dev.facility.entity.FacilityDetails;
-import backend.dev.facility.exception.FacilityException;
 import backend.dev.facility.repository.FacilityDetailsRepository;
 import backend.dev.likes.entity.Likes;
-import backend.dev.likes.exception.LikeException;
 import backend.dev.likes.repository.LikeRepository;
 import backend.dev.setting.exception.ErrorCode;
 import backend.dev.setting.exception.PublicPlusCustomException;
@@ -26,10 +24,10 @@ public class LikeService {
     public void addLike(String facilityId) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findById(userId).orElseThrow(() -> new PublicPlusCustomException(ErrorCode.NOT_FOUND_USER));
-        FacilityDetails facilityDetails = facilityDetailsRepository.findById(facilityId).orElseThrow(FacilityException.FACILITY_NOT_FOUND::getFacilityTaskException);
+        FacilityDetails facilityDetails = facilityDetailsRepository.findById(facilityId).orElseThrow(() -> new PublicPlusCustomException(ErrorCode.FACILITY_NOT_FOUND));
 
         if (likeRepository.existsByUserAndFacility(user,facilityDetails)) {
-            throw LikeException.DUPLICATE_LIKE.getLikeException();
+            throw new PublicPlusCustomException(ErrorCode.DUPLICATE_LIKE);
         }else {
             likeRepository.save(Likes.builder()
                     .user(user)

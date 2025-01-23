@@ -3,7 +3,8 @@ package backend.dev.facility.repository;
 import backend.dev.facility.dto.FacilityFilterDTO;
 import backend.dev.facility.entity.FacilityCategory;
 import backend.dev.facility.entity.FacilityDetails;
-import backend.dev.facility.exception.FacilityException;
+import backend.dev.setting.exception.ErrorCode;
+import backend.dev.setting.exception.PublicPlusCustomException;
 import backend.dev.testdata.FacilityInitializer;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.DisplayName;
@@ -11,16 +12,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@TestPropertySource(locations = "classpath:application-test.properties")
 @Import(FacilityInitializer.class) // FacilityInitializer를 테스트 클래스에 임포트
 @Transactional()
 public class FacilityDetailsRepositoryTests {
@@ -35,7 +34,7 @@ public class FacilityDetailsRepositoryTests {
         String facilityId = "FAC1";
 
         // when: 해당 ID로 시설을 조회
-        FacilityDetails facility = facilityDetailsRepository.findById(facilityId).orElseThrow(FacilityException.FACILITY_NOT_FOUND::getFacilityTaskException);
+        FacilityDetails facility = facilityDetailsRepository.findById(facilityId).orElseThrow(() -> new PublicPlusCustomException(ErrorCode.FACILITY_NOT_FOUND));
 
     }
 

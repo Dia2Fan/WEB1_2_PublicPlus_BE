@@ -1,8 +1,5 @@
 package backend.dev.user.controller;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import backend.dev.setting.exception.PublicPlusCustomException;
 import backend.dev.user.DTO.users.ChangePasswordDTO;
 import backend.dev.user.DTO.users.UserChangeInfoDTO;
@@ -10,18 +7,20 @@ import backend.dev.user.DTO.users.UserDTO;
 import backend.dev.user.DTO.users.UserJoinDTO;
 import backend.dev.user.entity.User;
 import backend.dev.user.service.UserService;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @Transactional
-@TestPropertySource(locations = {"classpath:/application-test.properties"})
 class UserControllerTest {
 
     @Autowired

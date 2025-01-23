@@ -1,12 +1,11 @@
 package backend.dev.meeting.repository.querydsl;
 
-import backend.dev.activity.exception.ActivityException;
 import backend.dev.meeting.dto.request.BoardFilterDTO;
-import backend.dev.meeting.dto.response.MeetingBoardResponseDTO;
 import backend.dev.meeting.entity.MeetingBoard;
 import backend.dev.meeting.entity.QMeetingBoard;
 import backend.dev.meeting.entity.SportType;
-import backend.dev.meeting.exception.MeetingBoardNotFoundException;
+import backend.dev.setting.exception.ErrorCode;
+import backend.dev.setting.exception.PublicPlusCustomException;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +42,7 @@ public class MeetingBoardRepositoryCustomImpl implements MeetingBoardRepositoryC
             }
         } catch (Exception e) {
             log.info(boardFilterDTO.getSportType());
-            throw ActivityException.ACTIVITY_CATEGORY_EXCEPTION.getException();
+            throw new PublicPlusCustomException(ErrorCode.ACTIVITY_CATEGORY_EXCEPTION);
         }
 
         List<MeetingBoard> meetingBoardList = queryFactory.selectFrom(qMeetingBoard)

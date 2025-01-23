@@ -3,8 +3,8 @@ package backend.dev.meeting.controller;
 import backend.dev.meeting.dto.request.BoardFilterDTO;
 import backend.dev.meeting.dto.request.MeetingBoardRequestDTO;
 import backend.dev.meeting.dto.response.MeetingBoardResponseDTO;
-import backend.dev.meeting.exception.MeetingBoardNotFoundException;
 import backend.dev.meeting.service.MeetingBoardService;
+import backend.dev.setting.exception.PublicPlusCustomException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -18,7 +18,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -77,7 +76,7 @@ public class MeetingBoardController {
         try {
             MeetingBoardResponseDTO response = meetingBoardService.getMeetingBoardById(mbId);
             return ResponseEntity.ok(response);
-        } catch (MeetingBoardNotFoundException e) {
+        } catch (PublicPlusCustomException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // 404 처리
         }
     }

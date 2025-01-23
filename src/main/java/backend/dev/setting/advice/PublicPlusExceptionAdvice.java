@@ -1,13 +1,8 @@
 package backend.dev.setting.advice;
 
-import backend.dev.activity.exception.ActivityTaskException;
-import backend.dev.facility.exception.FacilityTaskException;
-import backend.dev.likes.exception.LikeTaskException;
-import backend.dev.notification.exception.NotificationTaskException;
 import backend.dev.setting.exception.ErrorResponse;
 import backend.dev.setting.exception.PublicPlusCustomException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,7 +10,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 @Slf4j
-@Order(1)
 public class PublicPlusExceptionAdvice {
     @ExceptionHandler(PublicPlusCustomException.class)
     public ResponseEntity<ErrorResponse> handleCustomException(PublicPlusCustomException e) {
@@ -24,29 +18,9 @@ public class PublicPlusExceptionAdvice {
         return ResponseEntity.status(response.getHttpStatus()).body(response);
     }
 
-    @ExceptionHandler(FacilityTaskException.class)
-    public ResponseEntity<ErrorResponse> handleFilerException(FacilityTaskException e) {
-        ErrorResponse response = ErrorResponse.of(HttpStatus.valueOf(e.getCode()), e.getMessage());
-        log.error("Error Message: {}", e.getCode(), e.getMessage());
-        return ResponseEntity.status(response.getHttpStatus()).body(response);
-    }
-
-    @ExceptionHandler(NotificationTaskException.class)
-    public ResponseEntity<ErrorResponse> handleNotificationException(NotificationTaskException e) {
-        ErrorResponse response = ErrorResponse.of(HttpStatus.valueOf(e.getCode()), e.getMessage());
-        log.error("Error Message: {}", e.getCode(), e.getMessage());
-        return ResponseEntity.status(response.getHttpStatus()).body(response);
-    }
-    @ExceptionHandler(ActivityTaskException.class)
-    public ResponseEntity<ErrorResponse> handleActivityTaskException(ActivityTaskException e) {
-        ErrorResponse response = ErrorResponse.of(HttpStatus.valueOf(e.getCode()), e.getMessage());
-        log.error("Error Message: {}",e.getCode(), e.getMessage());
-        return ResponseEntity.status(response.getHttpStatus()).body(response);
-    }
-    @ExceptionHandler(LikeTaskException.class)
-    public ResponseEntity<ErrorResponse> handleLikeException(LikeTaskException e) {
-        ErrorResponse response = ErrorResponse.of(HttpStatus.valueOf(e.getCode()), e.getMessage());
-        log.error("Error Message: {}",e.getCode(), e.getMessage());
-        return ResponseEntity.status(response.getHttpStatus()).body(response);
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleGeneralException(Exception e) {
+        e.printStackTrace(); // 로깅 필요 시 유지
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류가 발생했습니다.");
     }
 }

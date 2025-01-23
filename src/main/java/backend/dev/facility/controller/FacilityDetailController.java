@@ -9,11 +9,12 @@ import backend.dev.facility.dto.facilitydetails.FacilityDetailsResponseDTO;
 import backend.dev.facility.dto.facilitydetails.FacilityDetailsUpdateDTO;
 import backend.dev.facility.entity.FacilityCategory;
 import backend.dev.facility.entity.FacilityDetails;
-import backend.dev.facility.exception.FacilityException;
 import backend.dev.facility.service.FacilityAPIService;
 import backend.dev.facility.service.FacilityDetailService;
-import backend.dev.facility.service.FacilitySearchService;
 import backend.dev.facility.service.FacilityParsingService;
+import backend.dev.facility.service.FacilitySearchService;
+import backend.dev.setting.exception.ErrorCode;
+import backend.dev.setting.exception.PublicPlusCustomException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -142,7 +143,7 @@ public class FacilityDetailController {
         if (facilityDetailsList.size() > 400) {
             return ResponseEntity.status(200).body(Map.of("데이터 수집", "완료"));
         }
-        throw FacilityException.FACILITY_EXCEPTION.getFacilityTaskException();
+        throw new PublicPlusCustomException(ErrorCode.FACILITY_EXCEPTION);
     }
 
     @Operation(summary = "시설 필터링 검색", description = "시설 검색정보를 여러 조건으로 필터링하여 조회합니다.")

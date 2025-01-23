@@ -3,8 +3,8 @@ package backend.dev.likes.repository;
 import backend.dev.facility.entity.FacilityDetails;
 import backend.dev.facility.repository.FacilityDetailsRepository;
 import backend.dev.likes.entity.Likes;
-import backend.dev.likes.exception.LikeException;
-import backend.dev.likes.exception.LikeTaskException;
+import backend.dev.setting.exception.ErrorCode;
+import backend.dev.setting.exception.PublicPlusCustomException;
 import backend.dev.testdata.FacilityInitializer;
 import backend.dev.user.DTO.users.UserJoinDTO;
 import backend.dev.user.entity.User;
@@ -14,12 +14,10 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.TestPropertySource;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
-@TestPropertySource(locations = "classpath:application-test.properties")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Import(FacilityInitializer.class) // FacilityInitializer를 테스트 클래스에 임포트
 class LikeRepositoryTest {
@@ -51,7 +49,7 @@ class LikeRepositoryTest {
 
         //when
         if (likeRepository.existsByUserAndFacility(user, fac1)){
-            throw LikeException.DUPLICATE_LIKE.getLikeException();
+            throw new PublicPlusCustomException(ErrorCode.DUPLICATE_LIKE);
         }else {
             Likes likes = Likes.builder()
                     .user(user)

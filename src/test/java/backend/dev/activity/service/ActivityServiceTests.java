@@ -2,34 +2,25 @@ package backend.dev.activity.service;
 
 import backend.dev.activity.dto.ActivityRequestDTO;
 import backend.dev.activity.entity.Activity;
-import backend.dev.activity.entity.ActivityParticipants;
-import backend.dev.activity.entity.ParticipantsRole;
-import backend.dev.activity.exception.ActivityException;
 import backend.dev.activity.mapper.ActivityMapper;
 import backend.dev.activity.repository.ActivityParticipantsRepository;
 import backend.dev.activity.repository.ActivityRepository;
 import backend.dev.googlecalendar.service.EventService;
+import backend.dev.setting.exception.ErrorCode;
+import backend.dev.setting.exception.PublicPlusCustomException;
 import backend.dev.user.DTO.users.UserJoinDTO;
 import backend.dev.user.entity.User;
 import backend.dev.user.repository.UserRepository;
 import backend.dev.user.service.UserService;
 import jakarta.transaction.Transactional;
-import java.time.LocalDateTime;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.test.context.TestPropertySource;
+
+import java.time.LocalDateTime;
 
 @SpringBootTest
-@TestPropertySource(locations = "classpath:application-test.properties")
 @Transactional
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 //@Import(ActivityInitializer.class) // FacilityInitializer를 테스트 클래스에 임포트
@@ -99,7 +90,7 @@ public class ActivityServiceTests {
                 .title("업데이트 중")
                 .build();
         //when
-        Activity activity = activityRepository.findById(activityId).orElseThrow(ActivityException.ACTIVITY_NOT_FOUND::getException);
+        Activity activity = activityRepository.findById(activityId).orElseThrow(() -> new PublicPlusCustomException(ErrorCode.ACTIVITY_NOT_FOUND));
         activity.changeDescription(updateDTO.description());
         activity.changeTitle(updateDTO.title());
 
@@ -136,7 +127,7 @@ public class ActivityServiceTests {
     void ActivityDeleteTest(){
         //given 삭제할 아이디
         Long activityId = 2L;
-        Activity activity = activityRepository.findById(activityId).orElseThrow(ActivityException.ACTIVITY_NOT_FOUND::getException);
+        Activity activity = activityRepository.findById(activityId).orElseThrow(() -> new PublicPlusCustomException(ErrorCode.ACTIVITY_NOT_FOUND));
         //when activity를 삭제 할 경우
         activityRepository.delete(activity);
         //then 모임이 삭제되었는지 테스트

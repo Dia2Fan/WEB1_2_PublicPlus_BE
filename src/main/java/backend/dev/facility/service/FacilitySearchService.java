@@ -5,14 +5,13 @@ import backend.dev.facility.dto.facility.FacilityLocationDTO;
 import backend.dev.facility.dto.facility.FacilityResponseDTO;
 import backend.dev.facility.entity.FacilityCategory;
 import backend.dev.facility.entity.FacilityDetails;
-import backend.dev.facility.exception.FacilityException;
 import backend.dev.facility.repository.FacilityDetailsRepository;
+import backend.dev.setting.exception.ErrorCode;
+import backend.dev.setting.exception.PublicPlusCustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -30,7 +29,7 @@ public class FacilitySearchService {
             return byFacilityCategory.map(FacilityResponseDTO::fromEntity);
         }catch (Exception e) {
             e.printStackTrace();
-            throw FacilityException.INVALID_CATEGORY.getFacilityTaskException();
+            throw new PublicPlusCustomException(ErrorCode.INVALID_CATEGORY);
         }
     }
     //     필터로 시설 찾기
@@ -38,7 +37,7 @@ public class FacilitySearchService {
         try {
             return facilityDetailsRepository.findFacility(facilityFilterDTO,pageable).map(FacilityResponseDTO::fromEntity);
         } catch (Exception e) {
-            throw FacilityException.FACILITY_NOT_FOUND.getFacilityTaskException();
+            throw new PublicPlusCustomException(ErrorCode.FACILITY_NOT_FOUND);
         }
     }
     public Page<FacilityResponseDTO> getFacilitiesNearBy(FacilityLocationDTO facilityLocationDTO,Pageable pageable) {

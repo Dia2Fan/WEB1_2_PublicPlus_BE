@@ -1,21 +1,21 @@
 package backend.dev.facility.service;
 
-import backend.dev.facility.dto.facility.FacilityResponseDTO;
 import backend.dev.facility.dto.facilitydetails.FacilityDetailsResponseDTO;
 import backend.dev.facility.entity.FacilityDetails;
-import backend.dev.facility.exception.FacilityException;
 import backend.dev.facility.repository.FacilityDetailsRepository;
+import backend.dev.setting.exception.ErrorCode;
+import backend.dev.setting.exception.PublicPlusCustomException;
 import backend.dev.testdata.FacilityInitializer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.TestPropertySource;
-import static org.junit.jupiter.api.Assertions.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
-@TestPropertySource(locations = "classpath:application-test.properties")
 @Import(FacilityInitializer.class) // FacilityInitializer를 테스트 클래스에 임포트
 public class FacilitySearchServiceTests {
 
@@ -32,7 +32,7 @@ public class FacilitySearchServiceTests {
     public void testGetFacilityById_Success() {
         // given
         String id = "FAC1";
-        FacilityDetails facility = facilityDetailsRepository.findById(id).orElseThrow(FacilityException.FACILITY_NOT_FOUND::getFacilityTaskException);
+        FacilityDetails facility = facilityDetailsRepository.findById(id).orElseThrow(() -> new PublicPlusCustomException(ErrorCode.FACILITY_NOT_FOUND));
 
         // when
         FacilityDetailsResponseDTO response = facilityService.getFacilityDetails(id);

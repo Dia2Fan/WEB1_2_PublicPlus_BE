@@ -4,18 +4,18 @@ package backend.dev.activity.service;
 import backend.dev.activity.entity.Activity;
 import backend.dev.activity.entity.ActivityParticipants;
 import backend.dev.activity.entity.ParticipantsRole;
-import backend.dev.activity.exception.ActivityException;
 import backend.dev.activity.mapper.ActivityMapper;
 import backend.dev.activity.repository.ActivityParticipantsRepository;
 import backend.dev.activity.repository.ActivityRepository;
 import backend.dev.googlecalendar.service.EventService;
+import backend.dev.setting.exception.ErrorCode;
+import backend.dev.setting.exception.PublicPlusCustomException;
 import backend.dev.user.DTO.users.UserJoinDTO;
 import backend.dev.user.entity.User;
 import backend.dev.user.repository.UserRepository;
 import backend.dev.user.service.UserService;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
-import org.hibernate.validator.internal.constraintvalidators.bv.AssertTrueValidator;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,16 +23,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.test.context.TestPropertySource;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
-@TestPropertySource(locations = "classpath:application-test.properties")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ActivityParticipantsTests {
     private static final Logger log = LoggerFactory.getLogger(ActivityParticipantsTests.class);
@@ -103,8 +99,8 @@ public class ActivityParticipantsTests {
         //given
         User user = userRepository.findByEmail("bbb@bbb.com").orElseThrow();
         User user2 = userRepository.findByEmail("ccc@ccc.com").orElseThrow();
-        Activity activity = activityRepository.findById(1L).orElseThrow(ActivityException.ACTIVITY_NOT_FOUND::getException);
-        Activity activity2 = activityRepository.findById(2L).orElseThrow(ActivityException.ACTIVITY_NOT_FOUND::getException);
+        Activity activity = activityRepository.findById(1L).orElseThrow(() -> new PublicPlusCustomException(ErrorCode.ACTIVITY_NOT_FOUND));
+        Activity activity2 = activityRepository.findById(2L).orElseThrow(() -> new PublicPlusCustomException(ErrorCode.ACTIVITY_NOT_FOUND));
 
         //when
         ActivityParticipants activityParticipants = ActivityParticipants.builder()
@@ -152,8 +148,8 @@ public class ActivityParticipantsTests {
     void activityParticipantsJoinTest() {
         // given
         User user = userRepository.findByEmail("bbb@bbb.com").orElseThrow();
-        Activity activity = activityRepository.findById(1L).orElseThrow(ActivityException.ACTIVITY_NOT_FOUND::getException);
-        Activity activity2 = activityRepository.findById(2L).orElseThrow(ActivityException.ACTIVITY_NOT_FOUND::getException);
+        Activity activity = activityRepository.findById(1L).orElseThrow(() -> new PublicPlusCustomException(ErrorCode.ACTIVITY_NOT_FOUND));
+        Activity activity2 = activityRepository.findById(2L).orElseThrow(() -> new PublicPlusCustomException(ErrorCode.ACTIVITY_NOT_FOUND));
 
         log.info("Initial Participants for Activity 1: {}", activity.getParticipants().size());
         log.info("Initial Participants for Activity 2: {}", activity2.getParticipants().size());
